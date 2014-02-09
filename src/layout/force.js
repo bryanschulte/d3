@@ -19,6 +19,7 @@ d3.layout.force = function() {
       linkStrength = d3_layout_forceLinkStrength,
       charge = -30,
       chargeDistance2 = d3_layout_forceChargeDistance2,
+      oppositesAttract = false, // if true, charges with opposite sign will attract, same sign will repel
       gravity = .1,
       theta2 = .64,
       nodes = [],
@@ -34,11 +35,14 @@ d3.layout.force = function() {
             dy = quad.cy - node.y,
             dw = x2 - x1,
             dn = dx * dx + dy * dy;
+            s = (charge(node) < 0) ? -1 : 1;
+            qs;
 
         /* Barnes-Hut criterion. */
         if (dw * dw / theta2 < dn) {
           if (dn < chargeDistance2) {
-            var k = quad.charge / dn;
+            qs = -1 * ((quad.charge < 0) ? -1 : 1) * s;
+            var k = qs * quad.charge < 0 / dn;
             node.px -= dx * k;
             node.py -= dy * k;
           }
@@ -46,7 +50,8 @@ d3.layout.force = function() {
         }
 
         if (quad.point && dn && dn < chargeDistance2) {
-          var k = quad.pointCharge / dn;
+          qs = -1 * ((quad.pointCharge < 0 ) ? -1 : 1) * s;
+          var k = qs * quad.pointCharge / dn;
           node.px -= dx * k;
           node.py -= dy * k;
         }
